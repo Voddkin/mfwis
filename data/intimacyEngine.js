@@ -1,9 +1,13 @@
 /* ==========================================================================
    MY FAVORITE WOMAN IS SMALL — santni studio
-   Motor de Intimidade Adulta (18+): cenas íntimas interativas em 5 etapas,
-   consentimento ativo (check-in, desacelerar, parar), preferências que você
-   descobre jogando, pós-cena (aftercare) e diário de intimidade.
-   Aurora é uma mulher adulta (22 anos). Tudo é consensual e sensual/literário.
+   Motor de Intimidade Adulta (18+) — VERSÃO REESCRITA (Putaria Nível 2/3 + CNC)
+   
+   5 etapas com linguagem suja e crua, opções consensuais e CNC,
+   dirty talk pesado, height play sexualizado, consequências reais
+   (o jogo NÃO trava com escolhas asquerosas ou maravilhosas).
+   
+   Aurora é mulher adulta (22 anos). CNC só aparece depois de autorização
+   explícita dela (flag cncAuthorized). Safeword sempre disponível.
    ========================================================================== */
 
 window.AuroraGame = window.AuroraGame || {};
@@ -12,23 +16,37 @@ window.AuroraGame = window.AuroraGame || {};
   const I = {};
 
   const STAGE_NAMES = ["Aproximação", "Aquecimento", "Intensidade", "Entrega", "Depois"];
+  
   const STYLE_LABEL = {
     lento: "ritmo lento e atento",
-    ousado: "iniciativa ousada",
+    ousado: "iniciativa ousada e dominante",
     conduzida: "deixar ela conduzir",
-    provocacao: "jogo de provocação",
-    cuidado: "cuidado e cumplicidade"
+    provocacao: "jogo de provocação e tortura",
+    cuidado: "cuidado e cumplicidade",
+    cnc: "CNC / uso sem piedade",
+    degradante: "tratamento degradante",
+    bruto: "sexo bruto e animal"
   };
 
   function st() {
     const s = AG.state;
-    s.intimacy = s.intimacy || { sessions: 0, discovered: {}, checkins: 0, stops: 0, log: [] };
+    s.intimacy = s.intimacy || { 
+      sessions: 0, 
+      discovered: {}, 
+      checkins: 0, 
+      stops: 0, 
+      log: [],
+      cncAuthorized: false,
+      cncSessions: 0,
+      lastIntensity: "normal"
+    };
     s.intimacy.discovered = s.intimacy.discovered || {};
     s.intimacy.log = s.intimacy.log || [];
     return s.intimacy;
   }
 
   function pick(key, arr) {
+    if (!arr || !arr.length) return "";
     if (AG.DeepDialogue && AG.DeepDialogue.pickVariant) return AG.DeepDialogue.pickVariant(key, arr);
     return arr[Math.floor(Math.random() * arr.length)];
   }
@@ -42,18 +60,23 @@ window.AuroraGame = window.AuroraGame || {};
     return t !== "suave";
   }
 
-  // Preferência dela (oculta) — você descobre observando as reações
+  function isCncUnlocked() {
+    return !!st().cncAuthorized;
+  }
+
+  // Preferência oculta dela
   I.getHerPreference = function () {
     const a = AG.state.aurora;
-    if (a.dominance >= 45) return "conduzida";
-    if ((a.rivalry || 0) >= 38) return "provocacao";
-    if ((a.vulnerability || 0) >= 38 || (a.mentalStability !== undefined && a.mentalStability <= 60)) return "lento";
-    if (a.heat >= 60) return "ousado";
+    if (a.dominance >= 50) return "conduzida";
+    if ((a.rivalry || 0) >= 40) return "provocacao";
+    if ((a.vulnerability || 0) >= 40 || (a.mentalStability !== undefined && a.mentalStability <= 55)) return "lento";
+    if (a.heat >= 65) return "ousado";
+    if (isCncUnlocked() && (a.heat >= 55 || a.arousal >= 50)) return "cnc";
     return "cuidado";
   };
 
   // ------------------------------------------------------------------------
-  // Condições (consenso estrito + local privado + presença via AG.Gates)
+  // Condições de início
   // ------------------------------------------------------------------------
   I.canStart = function () {
     if (AG.Gates && AG.Gates.check) {
@@ -67,9 +90,9 @@ window.AuroraGame = window.AuroraGame || {};
       a.activity !== "dormindo" &&
       privateLoc &&
       ((a.intimacyLevel || 0) >= 46 || (a.heat >= 42 && a.affinity >= 22) || (a.heat >= 50 && (a.intimacyLevel || 0) >= 26)) &&
-      a.discomfort < 32 &&
+      a.discomfort < 38 &&
       (!s.phoneState || s.phoneState.manipulationCount === 0) &&
-      (a.leveragePressure || 0) < 25
+      (a.leveragePressure || 0) < 30
     );
   };
 
@@ -81,452 +104,422 @@ window.AuroraGame = window.AuroraGame || {};
   };
 
   // ------------------------------------------------------------------------
-  // Textos auxiliares: clima emocional dela e intensidade extra
+  // Textos de clima emocional (versão mais suja)
   // ------------------------------------------------------------------------
   const FAM_FLAVOR = {
     luminosa: [
-      "Ela ri baixinho entre um beijo e outro, leve, como quem não quer que o momento acabe.",
-      "Há um brilho solto no olhar dela, de quem está exatamente onde quer estar."
+      "Ela ri baixinho entre um gemido e outro, os olhos brilhando de tesão puro.",
+      "Há um sorriso safado no canto da boca dela, de quem está adorando ser usada assim."
     ],
     quimica: [
-      "A respiração dela já está curta antes mesmo de você fazer o próximo movimento.",
-      "O calor entre vocês tem peso próprio; cada centímetro de pele que se encosta parece acender mais um pouco."
+      "A buceta dela já está pingando antes mesmo de você enfiar os dedos. O cheiro de tesão preenche o quarto.",
+      "O corpo pequeno dela treme inteiro cada vez que você aperta mais forte. Ela está molhada pra caralho."
     ],
     caotica: [
-      "Ela alterna riso nervoso e fôlego curto, transformando a tensão numa brincadeira que escorrega pra algo bem mais sério.",
-      "A energia elétrica dela se converte em pura atenção em você — e isso é ainda mais intenso."
+      "Ela alterna entre rir e gemer, transformando a tensão em putaria aberta. As mãos pequenas puxam sua roupa com urgência.",
+      "A energia elétrica dela virou puro desejo animal. Ela quer ser fodida e não está mais disfarçando."
     ],
     vulneravel: [
-      "Ela segura o seu olhar um segundo a mais, como se pedisse sem palavras para você ir com cuidado.",
-      "Dá pra sentir que ela está se permitindo entregar algo importante — e isso pede delicadeza."
+      "Ela segura seu olhar com um misto de tesão e entrega. Os olhos marejam de prazer quando você a trata com firmeza.",
+      "Dá pra sentir que ela está se abrindo de um jeito que quase ninguém vê — e isso deixa tudo ainda mais intenso."
     ],
     conflito: [
-      "A tensão que havia entre vocês antes vira combustível: ela beija como quem resolve uma discussão com o corpo.",
-      "O orgulho dela resiste meio segundo e depois cede, rendido."
+      "A raiva e o tesão se misturam. Ela beija como quem quer te morder e te foder ao mesmo tempo.",
+      "O orgulho dela resiste meio segundo e depois cede de um jeito delicioso. Ela gosta quando você não pede licença."
     ],
     sombria: [
-      "Há algo de magnético e perigoso no jeito calmo como ela te guia, sem pressa e sem desviar o olhar.",
-      "O sorriso dela é de quem sabe exatamente o efeito que causa."
+      "Há algo perigoso e gostoso no jeito calmo como ela te olha enquanto você a usa. Ela está curtindo cada segundo.",
+      "O sorriso dela é de putinha que sabe exatamente o que está fazendo. E gosta."
     ]
   };
 
   const EXTRA_INTENSE = {
     lento: [
-      "Vocês se descobrem devagar, mãos que memorizam cada curva, beijos que se estendem até o ar do quarto parecer mais quente que o resto do prédio.",
-      "O ritmo é tão lento que cada toque vira um pequeno acontecimento — a pele dela arrepia onde seus dedos passam."
+      "Você fode ela devagar, sentindo cada centímetro da buceta apertada dela engolir seu pau. Ela geme baixo, quase chorando de prazer.",
+      "O ritmo lento deixa ela louca. Cada estocada profunda faz o corpo pequeno tremer e a voz dela falhar."
     ],
     ousado: [
-      "Você assume a iniciativa sem hesitar, e ela responde na mesma medida, puxando você pela gola como quem aprova cada decisão.",
-      "A pegada firme e segura arranca dela um suspiro que não tenta esconder, e as mãos pequenas apertam seus ombros pedindo mais."
+      "Você a ergue pela cintura como se ela não pesasse nada e enfia o pau nela de uma vez. O gemido dela ecoa no quarto.",
+      "A pegada firme e o pau duro dentro dela arrancam sons que ela nem tenta mais esconder. Ela está sendo usada e adora."
     ],
     conduzida: [
-      "Ela toma o ritmo para si com um sorriso de dona da situação, e você descobre como é bom obedecer ao compasso dela.",
-      "As mãos dela te guiam, os olhos dela te seguram, e o controle que ela exerce tem o gosto exato de um convite."
+      "Ela sobe em você e cava o pau com a buceta molhada, ditando o ritmo enquanto geme no seu ouvido o quanto gosta de controlar.",
+      "As mãos pequenas dela te empurram pra baixo e ela se senta até o fundo, olhando nos seus olhos enquanto te fode."
     ],
     provocacao: [
-      "Cada quase-toque vira uma pequena tortura deliciosa; os dois sorriem, ofegantes, esperando quem cede primeiro.",
-      "A tensão estica até o limite e, quando finalmente se encostam de novo, o alívio é quase um riso de rendição."
+      "Você a leva até a beira do orgasmo e para de propósito. Ela quase chora de frustração, a buceta pulsando vazia.",
+      "Cada vez que você quase enfia e recua, ela solta um gemido revoltado. Ela está desesperada pra ser fodida."
     ],
     cuidado: [
-      "Entre um beijo e outro vocês trocam olhares cúmplices que dizem mais do que qualquer frase — conforto e desejo no mesmo gesto.",
-      "Há risadas baixas, mãos entrelaçadas e uma entrega calma que deixa tudo ainda mais intenso."
+      "Entre uma estocada e outra você beija a testa dela e pergunta se está gostoso. Ela responde ofegante que está, e pede mais.",
+      "O carinho misturado com o pau duro dentro dela deixa a Aurora completamente entregue e molhada."
+    ],
+    cnc: [
+      "Você a usa sem pedir licença, segurando os pulsos dela e enfiando fundo. Ela geme e resiste de mentira, a buceta apertando ainda mais.",
+      "Mesmo enquanto ela balbucia 'para' com a voz falhando, o corpo dela te puxa pra dentro e a buceta escorre."
+    ],
+    degradante: [
+      "Você fala putaria na orelha dela enquanto fode. Ela cora até o pescoço e a buceta aperta como se gostasse de ser chamada de putinha.",
+      "Tratar ela como objeto de prazer faz o corpo pequeno tremer de um jeito doentio e gostoso."
+    ],
+    bruto: [
+      "Você fode ela sem nenhuma delicadeza, batendo o pau fundo e rápido. O barulho molhado e os gemidos dela enchem o quarto.",
+      "O corpo dela é pequeno demais pra tanto pau e tanta força, e isso só deixa tudo mais excitante."
     ]
   };
-
-  // Reações profundas exclusivas quando você acerta a preferência oculta dela
-  const FAVORITE_MATCH_LINES = {
-    lento: [
-      "Você nem imagina o quanto esse ritmo devagar mexe comigo... Quando você toca sem pressa, ouvindo cada suspiro meu, parece que o mundo inteiro lá fora apaga e só existe o calor das suas mãos em mim.",
-      "É exatamente assim que eu perco todas as defesas — sem pressa, sentindo cada segundo na pele. Você leu minha cabeça inteira hoje, 402."
-    ],
-    ousado: [
-      "Quando você chega com essa pegada firme e decidida, minhas pernas literalmente desistem de obedecer... Eu amo quando você não hesita e mostra na prática o quanto me quer agora.",
-      "Era exatamente essa intensidade que tava faltando pra minha cabeça parar de pensar em tudo! Continua me segurando firme assim, 402."
-    ],
-    conduzida: [
-      "Você não faz ideia do fogo que acende em mim quando você confia o ritmo inteiro nas minhas mãos... Ver você se entregar pro meu comando assim me deixa completamente elétrica.",
-      "Eu sabia que você ia entender o quanto eu adoro conduzir a gente — e você obedece de um jeito que só me dá vontade de ir ainda mais fundo."
-    ],
-    provocacao: [
-      "Esse seu joguinho de provocar até o limite me deixa louca de um jeito absurdo... Cada vez que você quase encosta e segura o sorriso, meu corpo inteiro pede mais.",
-      "Você descobriu exatamente o gatilho que me tira do eixo — essa tensão no fio da navalha é o meu ponto fraco favorito."
-    ],
-    cuidado: [
-      "É esse cuidado misturado com desejo que faz você ser diferente de tudo que eu já vivi... Me sinto tão segura nos seus braços que consigo me entregar inteira sem nenhum medo.",
-      "Ninguém nunca misturou carinho e intensidade com tanta naturalidade quanto você — meu coração tá batendo junto com o seu agora."
-    ]
-  };
-
-  // Camada literária extra por etapa + tom (intenso vs suave) para cenas de 3 parágrafos
-  const STAGE_DEPTH_PARAGRAPHS = {
-    0: {
-      intenso: [
-        "Ela aproxima o rosto até as respirações se misturarem por completo, os dedos deslizando devagar da sua camisa até a sua nuca como se estivesse memorizando o calor da sua pele.",
-        "O silêncio do quarto parece amplificar cada batida acelerada no peito dela — o olhar de baixo pra cima não esconde mais nenhuma parcela da vontade acumulada."
-      ],
-      suave: [
-        "Ela sorri pequeno entre um suspiro e outro, deixando a testa encostar de leve na sua enquanto o clima do quarto fica cada vez mais acolhedor e próximo.",
-        "O ritmo calmo dá espaço para vocês dois se olharem de verdade, sem pressa alguma para apressar o que está nascendo ali."
-      ]
-    },
-    1: {
-      intenso: [
-        "Um arrepio contínuo percorre os ombros dela sob seus dedos; ela solta o ar quente perto da sua orelha, puxando você ainda mais fundo para dentro do espaço dela.",
-        "Cada toque acende uma resposta imediata no corpo dela — os lábios entreabertos, a pele quente sob a meia-luz e os dedos apertando seus ombros sem querer soltar."
-      ],
-      suave: [
-        "A proximidade ganha uma fluidez natural; as mãos dela encontram as suas sem timidez, aproveitando o calor tranquilo que tomou conta do quarto.",
-        "Entre toques lentos e sorrisos cúmplices, a última barreira de timidez dela desaparece completamente."
-      ]
-    },
-    2: {
-      intenso: [
-        "O quarto inteiro parece encolher até sobrar apenas o ritmo das respirações curtas, o calor compartilhado e os olhos dela presos nos seus sem qualquer filtro restante.",
-        "A voz dela sai num murmúrio entrecortado contra a sua pele, entregando na mesma medida urgência, confiança e um desejo impossível de disfarçar."
-      ],
-      suave: [
-        "A sintonia entre vocês atinge um ponto raro onde cada gesto encontra resposta imediata, unindo intensidade emocional e delicadeza no mesmo compasso.",
-        "Ela mantém o olhar conectado ao seu, deixando claro na expressão serena e apaixonada o quanto confia em você."
-      ]
-    },
-    3: {
-      intenso: [
-        "Quando o fôlego finalmente volta aos poucos, o corpo pequeno dela continua colado no seu, quente e tremendo de leve enquanto ela ri baixinho contra o seu pescoço.",
-        "Os dedos dela continuam entrelaçados nos seus com força mansa, saboreando o eco longo daquela entrega sem nenhuma vontade de sair dali."
-      ],
-      suave: [
-        "Aos poucos o batimento cardíaco dos dois volta a um ritmo calmo, deixando no ar aquela sensação rara de plenitude e paz compartilhada.",
-        "Ela suspira satisfeita contra o seu peito, completamente relaxada nos seus braços sob a luz suave."
-      ]
-    },
-    4: {
-      intenso: [
-        "Sob o lençol quente, ela encosta os pés frios nos seus de propósito e solta uma risadinha preguiçosa, os olhos brilhando com a cumplicidade de quem acabou de viver uma noite inesquecível.",
-        "Ela passa a ponta dos dedos devagar pelo contorno do seu rosto na meia-luz, já guardando cada detalhe dessa noite na memória favorita dela."
-      ],
-      suave: [
-        "A calma depois do carinho parece preencher o apartamento inteiro — sem pressa, sem máscaras, apenas vocês dois dividindo o mesmo abrigo.",
-        "Ela fecha os olhos por um instante encostada no seu ombro, sorrindo com a serenidade de quem se sente finalmente em casa."
-      ]
-    }
-  };
-
-  const REPEAT_SESSION_OPENERS = [
-    "Engraçado como depois da última noite juntos eu nem preciso mais disfarçar o quanto eu te quero — só de ouvir a porta trancar meu coração já lembra do seu ritmo.",
-    "A gente já conhece tão bem o caminho até aqui agora... e mesmo assim você continua conseguindo deixar minhas mãos tremendo só de me olhar desse jeito."
-  ];
 
   // ------------------------------------------------------------------------
-  // Escolhas por etapa
+  // CHOICES — versão expandida e suja
   // ------------------------------------------------------------------------
   const CHOICES = {
+    // ===================== STAGE 0: APROXIMAÇÃO =====================
     0: [
       {
         id: "ab_beijo_lento", style: "lento", tone: "sweet",
-        label: "Segurar o rosto dela e beijar devagar, sem nenhuma pressa",
-        deltas: { heat: 10, arousal: 12, intimacyLevel: 8, affinity: 6, composure: -8 },
-        beat: "Você trava a porta com um estalo baixo, segura o rosto dela com as duas mãos e deixa o beijo começar lento, quase em câmera lenta, até a respiração dos dois encontrar o mesmo compasso.",
-        act: "Ela fecha os olhos e se inclina na ponta dos pés, os dedos cravados na sua camisa, retribuindo cada pausa com um suspiro.",
+        label: "Segurar o rostinho dela e beijar devagar, lambendo a boca",
+        deltas: { heat: 12, arousal: 14, intimacyLevel: 8, affinity: 6, composure: -10 },
+        beat: "Você trava a porta, segura o rosto pequeno dela com as duas mãos e beija devagar, chupando o lábio inferior e metendo a língua na boca dela sem pressa.",
+        act: "Aurora fecha os olhos e se estica na ponta dos pés, os dedos cravados na sua camisa, retribuindo o beijo com a língua molhada e um gemidinho baixo.",
         speech: [
-          "Hm... assim, devagar desse jeito, eu esqueço até o nome do prédio.\n\nNão tem relógio hoje, tem? Então não tem pressa nenhuma — continua olhando pra mim desse jeito.",
-          "Você beija como quem tem a noite inteira... e eu tô começando a achar que tenho mesmo.\n\nNão para agora, 402."
+          "Hm... assim... você beija gostoso pra caralho.\n\nNão tem pressa hoje, né? Então continua me chupando a boca desse jeito.",
+          "Porra... eu já tô molhada só com o beijo.\n\nContinua. Não para."
         ]
       },
       {
-        id: "ab_encostar", style: "ousado", tone: "hot",
-        label: "Encostá-la contra a parede com firmeza e tomar o beijo",
-        deltas: { heat: 14, arousal: 14, intimacyLevel: 8, composure: -12, personaBold: 2 },
-        beat: "Você a conduz até encostar as costas dela na parede, apoia a mão ao lado do rosto dela e fecha a distância num beijo firme que deixa claro o quanto você quis isso o dia inteiro.",
-        act: "Aurora solta um ofego surpreso e logo agarra a sua gola com as duas mãos, puxando você para baixo para retribuir com a mesma intensidade.",
+        id: "ab_encostar_parede", style: "ousado", tone: "hot",
+        label: "Encostar ela na parede, erguer a saia/camisola e apertar a bunda",
+        deltas: { heat: 16, arousal: 18, intimacyLevel: 9, composure: -14, personaBold: 3 },
+        beat: "Você empurra Aurora contra a parede, ergue a roupa dela com uma mão e aperta a bunda pequena com força, enfiando a coxa entre as pernas dela.",
+        act: "Ela solta um ofego alto e agarra sua gola, as pernas já trementes. A buceta quente e úmida se esfrega na sua coxa.",
         speech: [
-          "Você não perde tempo, né?! ...Ainda bem que eu também não.\n\nSegura mais firme aqui na cintura que eu tô perdendo o equilíbrio e a vergonha ao mesmo tempo.",
-          "Que pegada... minhas pernas ficaram bambas no primeiro segundo.\n\nSe a ideia era me deixar sem argumentos, parabéns — ganhou."
+          "Porra... você não perde tempo, né?\n\nAperta mais. Eu gosto quando você me manuseia assim.",
+          "Minha bunda cabe inteira na sua mão... isso me deixa louca.\n\nMe aperta mais forte."
         ]
       },
       {
         id: "ab_ela_comanda", style: "conduzida", tone: "ctrl",
-        label: "Sentar e dizer baixo: 'Hoje quem decide cada passo é você'",
-        deltas: { heat: 12, arousal: 12, intimacyLevel: 8, dominance: 6, composure: -8 },
-        beat: "Você se recosta com calma, abre um meio sorriso e fala olhando nos olhos dela: — Hoje eu sigo o seu ritmo. Mostra o que você quer.",
-        act: "Um sorriso lento e confiante surge no rosto dela; Aurora sobe devagar no seu colo e segura o seu queixo, escolhendo exatamente onde começar.",
+        label: "Sentar e falar: 'Hoje você manda. Usa meu pau como quiser'",
+        deltas: { heat: 14, arousal: 16, intimacyLevel: 9, dominance: 8, composure: -10 },
+        beat: "Você se senta, abre as pernas e olha pra ela com um meio sorriso. — Hoje o pau é seu. Faz o que quiser com ele.",
+        act: "Um sorriso safado aparece no rosto dela. Aurora sobe no seu colo, esfrega a buceta molhada no volume da sua calça e segura seu queixo.",
         speech: [
-          "Você acabou de me dar o controle e sorriu como se soubesse o que ia acontecer...\n\nPois fica quietinho e deixa o resto comigo.",
-          "Gosto desse seu lado que sabe entregar a vez.\n\nAgora aguenta, porque eu vou aproveitar cada segundo disso."
+          "Você acabou de me dar o controle e ainda sorriu...\n\nVou gozar sentada no seu pau e você vai ficar quietinho olhando.",
+          "Gosto quando você se entrega assim.\n\nAgora aguenta, porque eu vou te usar até cansar."
         ]
       },
       {
-        id: "ab_provocar", style: "provocacao", tone: "ctrl",
-        label: "Parar a um dedo da boca dela e provocar até ela pedir",
-        deltas: { heat: 12, arousal: 16, influence: 6, composure: -12, rivalry: 4 },
-        beat: "Você fica a um dedo da boca dela, respirando o mesmo ar, e sustenta o silêncio, deixando o olhar descer e subir devagar sem encostar.",
-        act: "Aurora aperta os lábios, indignada e ofegante, os dedos puxando a sua camisa para ver se você cede primeiro.",
+        id: "ab_provocar_limite", style: "provocacao", tone: "ctrl",
+        label: "Parar a um dedo da boca dela e provocar até ela pedir pra ser fodida",
+        deltas: { heat: 14, arousal: 20, influence: 7, composure: -14, rivalry: 5 },
+        beat: "Você fica a um centímetro da boca dela, respirando o mesmo ar, e sustenta o silêncio enquanto o pau lateja contra a barriga pequena dela.",
+        act: "Aurora aperta os lábios, ofegante, e puxa sua camisa com força. A buceta dela já está molhando a calcinha.",
         speech: [
-          "Você é uma tortura... Acaba logo isso antes que eu perca o resto da paciência!\n\nEu juro que vou me vingar, mas só depois que você me beijar.",
-          "Tá bom, tá bom, você ganhou essa rodada: me beija!\n\nE se sorrir de novo desse jeito eu mordo."
+          "Você é um desgraçado... Acaba com isso e me beija logo!\n\nEu juro que vou te morder se você continuar me torturando.",
+          "Porra, me beija! Eu já tô molhada pra caralho só de ficar assim.\n\nPara de me provocar e me fode de uma vez."
         ]
       },
       {
-        id: "ab_checkin", style: "cuidado", tone: "sweet", checkin: true,
-        label: "Perguntar baixinho se ela está confortável e o que ela quer",
-        deltas: { trust: 8, affinity: 6, vulnerability: 8, intimacyLevel: 4, discomfort: -6 },
-        beat: "Você encosta a testa na dela e pergunta num sussurro: — Tá tudo bem pra você? Me diz o que você quer — e o que não quer — que eu sigo.",
-        act: "Ela abre os olhos devagar, surpresa e comovida com o cuidado, e acaricia o seu rosto com o polegar.",
+        id: "ab_checkin_cnc", style: "cuidado", tone: "sweet", checkin: true, unlocksCnc: true,
+        label: "Perguntar se ela quer que você seja mais bruto / CNC hoje",
+        deltas: { trust: 10, affinity: 8, vulnerability: 10, intimacyLevel: 6, discomfort: -8 },
+        beat: "Você segura o rosto dela com carinho e pergunta baixo: — Aurora... se eu te usar sem pedir, se eu te tratar como putinha e não escutar quando você falar 'para'... você quer isso hoje? Me fala a verdade.",
+        act: "Ela engole seco, os olhos brilhando de um jeito diferente. O corpo pequeno treme de leve.",
         speech: [
-          "Você parou pra perguntar... isso me derrete mais do que qualquer beijo.\n\nTá tudo bem, de verdade. Eu quero isso, quero você — e se eu mudar de ideia, eu falo, combinado?",
-          "Ninguém nunca tinha me perguntado isso antes de começar.\n\nTô confortável. E mais ainda agora, sabendo que posso falar a qualquer momento."
+          "Eu... eu quero.\n\nSe eu falar a palavra de segurança a gente para de verdade. Mas se for só 'para' ou 'não'... você pode continuar. Eu gosto quando você me usa de verdade.",
+          "Porra... você perguntou isso e eu já fiquei molhada.\n\nSim. Eu autorizo. Me usa. Me fode como se eu fosse só um brinquedo gostoso. Mas se eu falar 'laço vermelho', você para na hora."
+        ]
+      },
+      {
+        id: "ab_checkin_normal", style: "cuidado", tone: "sweet", checkin: true,
+        label: "Perguntar se ela está confortável e o que ela quer agora",
+        deltas: { trust: 9, affinity: 7, vulnerability: 9, intimacyLevel: 5, discomfort: -7 },
+        beat: "Você encosta a testa na dela e pergunta: — Tá tudo bem? Me diz o que você quer e o que não quer. Eu escuto.",
+        act: "Ela abre os olhos devagar e acaricia seu rosto com o polegar, sorrindo de um jeito sincero.",
+        speech: [
+          "Você parar pra perguntar me derrete mais do que qualquer beijo.\n\nTô bem. Eu quero você. E se eu mudar de ideia, eu falo.",
+          "Ninguém nunca pergunta isso...\n\nTô confortável. E mais ainda agora."
         ]
       }
     ],
+
+    // ===================== STAGE 1: AQUECIMENTO =====================
     1: [
       {
-        id: "aq_pescoco", style: "lento", tone: "hot",
-        label: "Descer os beijos devagar pelo pescoço e pela clavícula",
-        deltas: { heat: 12, arousal: 16, intimacyLevel: 10, composure: -12 },
-        beat: "Você afasta o cabelo dela com as costas dos dedos e deixa os lábios percorrerem o pescoço e a clavícula em beijos lentos, medindo cada arrepio.",
-        act: "Aurora inclina a cabeça para o lado, entregando o pescoço, e solta um suspiro longo com as mãos subindo pela sua nuca.",
+        id: "aq_pescoco_chupar", style: "lento", tone: "hot",
+        label: "Chupar o pescoço e a clavícula até deixar marca",
+        deltas: { heat: 14, arousal: 18, intimacyLevel: 11, composure: -14 },
+        beat: "Você afasta o cabelo dela e chupa o pescoço com força, lambendo e mordendo de leve até a pele ficar vermelha. A mão desce e aperta a bunda pequena.",
+        act: "Aurora inclina a cabeça, entregando o pescoço, e solta um gemido longo. As unhas cravam na sua nuca.",
         speech: [
-          "Aí... exatamente aí. Você descobriu meu ponto fraco em dois minutos e ainda se faz de inocente.\n\nNão para, por favor. Eu tô derretendo.",
-          "Seu hálito no meu pescoço me deixa toda arrepiada...\n\nContinua assim, bem devagar, que eu não quero que isso acabe."
+          "Aí... porra, aí.\n\nVocê tá me marcando... eu gosto. Continua. Me deixa marcada pra eu lembrar amanhã.",
+          "Seu dente no meu pescoço me deixa completamente molhada.\n\nNão para. Eu quero carregar essa marca."
         ]
       },
       {
-        id: "aq_cintura", style: "ousado", tone: "hot",
-        label: "Puxar a cintura dela contra o seu corpo e erguê-la até a sua altura",
-        deltas: { heat: 14, arousal: 16, intimacyLevel: 10, composure: -14, personaBold: 2 },
-        beat: "Você firma as mãos na cintura dela e a ergue com facilidade até os lábios dos dois ficarem na mesma altura, o corpo pequeno dela encaixando por inteiro no seu.",
-        act: "Ela enlaça o seu pescoço com os braços e a cintura com as pernas, soltando uma risada sem fôlego antes de voltar a te beijar.",
+        id: "aq_erguer_altura", style: "ousado", tone: "hot",
+        label: "Erguer ela pela cintura até a altura do seu pau e esfregar",
+        deltas: { heat: 16, arousal: 20, intimacyLevel: 12, composure: -16, personaBold: 3 },
+        beat: "Você firma as mãos na cintura dela e a ergue como se ela não pesasse nada, alinhando a buceta com o volume do seu pau. Esfrega devagar, sentindo o calor e a umidade através da roupa.",
+        act: "Ela enlaça seu pescoço e a cintura com as pernas. Um gemido alto escapa quando o pau grosso esfrega bem no meio da buceta.",
         speech: [
-          "Você me pegou no colo como se eu não pesasse nada...\n\nAgora me carrega até onde você quiser, mas não para de me beijar.",
-          "Eu falo mal da diferença de altura toda hora — retiro tudo.\n\nDo seu colo, o mundo é bem melhor."
+          "Porra... você me pega no colo como se eu fosse brinquedo.\n\nContinua esfregando. Eu já tô encharcada.",
+          "Minha altura te deixa louco, né? Poder me levantar e usar do jeito que quiser...\n\nEntão usa. Me esfrega mais forte."
         ]
       },
       {
-        id: "aq_ela_guia", style: "conduzida", tone: "ctrl",
-        label: "Deixar as mãos dela guiarem as suas e seguir cada comando",
-        deltas: { heat: 14, arousal: 16, intimacyLevel: 10, dominance: 6, composure: -10 },
-        beat: "Você segue as mãos dela quando ela guia as suas pela própria cintura, sem forçar nada, obedecendo cada pausa e cada pedido sussurrado.",
-        act: "Aurora sorri, vitoriosa e excitada, conduzindo o ritmo com os olhos fixos nos seus.",
+        id: "aq_ela_ajoelha", style: "conduzida", tone: "ctrl",
+        label: "Deixar ela ajoelhar e chupar seu pau pela primeira vez",
+        deltas: { heat: 18, arousal: 22, intimacyLevel: 13, dominance: 6, composure: -12 },
+        beat: "Você se encosta e ela desce sozinha, ajoelhando na sua frente. As mãos pequenas abrem sua calça e o pau duro salta na cara dela.",
+        act: "Aurora olha pra cima, abre a boca e engole o máximo que consegue, engasgando um pouco mas continuando. A língua gira na cabeça enquanto ela chupa.",
         speech: [
-          "Assim mesmo... bem obediente, olhando pra mim.\n\nVocê não tem ideia do quanto eu gosto de ter você exatamente assim.",
-          "Esse jeito de me deixar mandar é perigosamente atraente.\n\nMais um pouco e eu não vou querer devolver o controle."
+          "Hmm... gostoso pra caralho.\n\nVocê é grande demais pra minha boca, mas eu gosto de tentar.",
+          "Olha pra mim enquanto eu te chupo.\n\nEu quero ver sua cara quando eu engolir tudo."
         ]
       },
       {
-        id: "aq_tensao", style: "provocacao", tone: "ctrl",
-        label: "Roçar os dedos e os lábios sem completar, deixando a tensão crescer",
-        deltas: { heat: 12, arousal: 20, influence: 8, composure: -16 },
-        beat: "Você percorre a pele dela com a ponta dos dedos e dos lábios sem nunca completar o gesto, recuando um milímetro cada vez que ela tenta fechar a distância.",
-        act: "Aurora fecha os punhos na sua camisa, ofegante e rindo de nervoso, com os olhos escuros de impaciência.",
+        id: "aq_dedos_calcinha", style: "provocacao", tone: "hot",
+        label: "Enfiar a mão na calcinha dela e brincar com o clitóris sem entrar",
+        deltas: { heat: 15, arousal: 24, influence: 8, composure: -18, rivalry: 4 },
+        beat: "Você desliza a mão por dentro da calcinha dela e encontra a buceta encharcada. Os dedos esfregam o clitóris inchado em círculos lentos, sem enfiar.",
+        act: "Aurora solta um gemido agudo e segura seu pulso, mas não tira. Os quadris dela se movem sozinhos pedindo mais.",
         speech: [
-          "Você tá fazendo de propósito, eu sei que tá!\n\nSe continuar me enrolando, eu mesma assumo o comando.",
-          "Meu coração nunca bateu tão forte na vida...\n\nTermina logo o que você começou ou eu termino por você."
+          "Porra... não fica só no clitóris, me fode com os dedos também!\n\nEu tô molhada demais pra você ficar só provocando.",
+          "Você é cruel... continua assim que eu vou gozar só com o dedo.\n\nMas eu quero seu pau. Me dá."
         ]
       },
       {
-        id: "aq_carinho", style: "cuidado", tone: "sweet",
-        label: "Trocar beijos lentos e risadas, abraçando-a com carinho",
-        deltas: { affinity: 10, trust: 8, intimacyLevel: 10, heat: 8, arousal: 10 },
-        beat: "Você desacelera de propósito, ri junto com ela de uma bobagem qualquer e a abraça forte, beijando o topo da cabeça, a testa e depois a boca.",
-        act: "Ela relaxa por completo no seu abraço, rindo baixinho e afundando o rosto no seu pescoço.",
+        id: "aq_cnc_forcar_beijo", style: "cnc", tone: "hot", requiresCnc: true,
+        label: "[CNC] Segurar o cabelo dela e beijar com força, ignorando o 'espera'",
+        deltas: { heat: 18, arousal: 22, intimacyLevel: 10, dominance: 10, discomfort: 4, composure: -16 },
+        beat: "Você puxa o cabelo dela com firmeza, força o beijo e mete a língua fundo na boca dela mesmo quando ela solta um 'espera' abafado. A outra mão aperta a bunda com força.",
+        act: "Aurora resiste de mentira por dois segundos e depois derrete, chupando sua língua de volta. A buceta dela escorre ainda mais.",
         speech: [
-          "Adoro que com você até o calor tem espaço pra risada.\n\nMe sinto segura de um jeito que eu nem sabia que dava.",
-          "Fica assim mais um pouco... esse abraço é perfeito.\n\nDepois a gente continua do ponto que você quiser."
-        ]
-      },
-      {
-        id: "aq_checkin", style: "cuidado", tone: "sweet", checkin: true,
-        label: "Desacelerar e perguntar se o ritmo está bom pra ela",
-        deltas: { trust: 8, affinity: 6, vulnerability: 8, discomfort: -6 },
-        beat: "Você diminui o ritmo, segura o rosto dela e pergunta com calma: — Tá bom assim? Quer que eu vá mais devagar ou mais rápido?",
-        act: "Ela sorri agradecida, com os olhos úmidos de carinho, e beija a palma da sua mão.",
-        speech: [
-          "Tá perfeito... e eu adoro que você pergunte.\n\nSe eu quiser mudar alguma coisa eu falo, prometo. Pode continuar.",
-          "Mais devagar é bom. Mais rápido... depois.\n\nObrigada por se importar com o que eu sinto."
+          "P-pera... ah, foda-se.\n\nContinua. Me usa. Eu gosto quando você não escuta.",
+          "Desgraçado... me beija mais forte.\n\nEu falei 'espera' e você cagou. Continua assim."
         ]
       }
     ],
+
+    // ===================== STAGE 2: INTENSIDADE =====================
     2: [
       {
-        id: "in_ritmo", style: "lento", tone: "hot",
-        label: "Manter um ritmo lento e atento a cada reação dela",
-        deltas: { heat: 14, arousal: 18, intimacyLevel: 12, affinity: 8, composure: -14 },
-        beat: "Você mantém um ritmo lento e intenso, atento a cada suspiro e a cada aperto das mãos dela, ajustando o toque conforme ela pede.",
-        act: "Aurora arqueia as costas e aperta os seus ombros, murmurando seu nome sem se preocupar em disfarçar.",
+        id: "in_foder_devagar", style: "lento", tone: "hot",
+        label: "Enfiar o pau devagar e foder ela com estocadas profundas e lentas",
+        deltas: { heat: 18, arousal: 24, intimacyLevel: 14, composure: -18 },
+        beat: "Você tira a calcinha dela, alinha o pau na entrada molhada e enfia centímetro por centímetro, sentindo a buceta apertada engolir tudo. Depois fode devagar, fundo, sem pressa.",
+        act: "Aurora arqueia as costas e solta um gemido longo e trêmulo. As unhas cravam nas suas costas a cada estocada profunda.",
         speech: [
-          "Assim... bem assim. Você presta atenção em tudo, né?\n\nEu nunca me senti tão... lida por alguém.",
-          "Continua nesse ritmo, por favor. Meu corpo inteiro tá pedindo mais disso.\n\nVocê me deixa sem palavras."
+          "Porra... tão fundo...\n\nContinua assim, bem devagar. Eu sinto cada veia do seu pau.",
+          "Você me preenche inteira... eu adoro quando você fode sem pressa.\n\nMais fundo. Quero sentir até o útero."
         ]
       },
       {
-        id: "in_fogo", style: "ousado", tone: "hot",
-        label: "Aumentar a intensidade com pegada firme e olhar de cima",
-        deltas: { heat: 18, arousal: 22, intimacyLevel: 12, composure: -18, personaBold: 3 },
-        beat: "Você aumenta a intensidade com firmeza segura, sustentando o olhar dela de cima enquanto as mãos puxam o corpo dela cada vez mais perto.",
-        act: "Ela morde o lábio inferior, as pernas apertando a sua cintura, e responde com um gemido baixo de aprovação.",
+        id: "in_foder_pe", style: "ousado", tone: "hot",
+        label: "Virar ela de quatro e foder com força, segurando a cintura pequena",
+        deltas: { heat: 20, arousal: 26, intimacyLevel: 14, composure: -20, personaBold: 4 },
+        beat: "Você vira Aurora de quatro na cama, segura a cintura minúscula com as duas mãos e enfia o pau de uma vez, fodendo com força. O barulho molhado enche o quarto.",
+        act: "Ela enterra o rosto no travesseiro e geme alto a cada estocada. A bunda pequena treme a cada batida.",
         speech: [
-          "Isso... não para agora, 402. Eu tô quase perdendo o controle de tudo.\n\nVocê me deixa sem fôlego e eu adoro cada segundo.",
-          "Você não tem ideia do que essa pegada faz comigo...\n\nMais um pouco e eu esqueço até o meu nome."
+          "Ah... porra... assim!\n\nMe fode mais forte. Eu aguento. Usa essa cintura pequena do jeito que quiser.",
+          "Você me segura como se eu fosse brinquedo... e eu adoro.\n\nContinua me fodendo. Não para."
         ]
       },
       {
         id: "in_ela_por_cima", style: "conduzida", tone: "ctrl",
-        label: "Deixar ela assumir o comando total e acompanhar o ritmo dela",
-        deltas: { heat: 18, arousal: 22, intimacyLevel: 12, dominance: 8, composure: -14 },
-        beat: "Você se entrega ao ritmo dela, deixando que ela decida cada movimento, enquanto as suas mãos apenas sustentam e acompanham.",
-        act: "Aurora assume o comando com confiança, segurando o seu rosto e ditando o compasso com o olhar preso no seu.",
+        label: "Deitar e deixar ela cavalgar até gozar em cima de você",
+        deltas: { heat: 18, arousal: 24, intimacyLevel: 15, dominance: 10, composure: -16 },
+        beat: "Você deita e ela sobe em cima, encaixando a buceta no seu pau. Aurora começa a cavalgar com força, gemendo e olhando nos seus olhos.",
+        act: "Ela apoia as mãos no seu peito e se move com ritmo safado, a buceta apertando a cada descida. Os seios pequenos balançam.",
         speech: [
-          "Olha só pra você... entregue assim, deixando eu mandar em tudo.\n\nVou cuidar muito bem de você, prometo.",
-          "Eu adoro ter esse controle com você... é diferente de tudo.\n\nNão desvia o olhar, quero ver cada reação sua."
+          "Olha pra mim enquanto eu te fodo.\n\nEu quero ver sua cara quando eu gozar sentada no seu pau.",
+          "Seu pau é meu agora.\n\nFica quieto e deixa eu gozar em cima de você."
         ]
       },
       {
-        id: "in_quase", style: "provocacao", tone: "ctrl",
-        label: "Levá-la até a beira e recuar de propósito, sorrindo",
-        deltas: { heat: 14, arousal: 26, influence: 10, composure: -20, rivalry: 4 },
-        beat: "Você a leva até a beira da tensão e recua no último segundo, sorrindo calmo enquanto observa a frustração deliciosa dela.",
-        act: "Aurora solta um gemido indignado e puxa o seu rosto com as duas mãos, ofegante e corada até as orelhas.",
+        id: "in_quase_gozar", style: "provocacao", tone: "ctrl",
+        label: "Levar ela até a beira do orgasmo e parar de propósito",
+        deltas: { heat: 16, arousal: 28, influence: 12, composure: -22, rivalry: 6 },
+        beat: "Você fode ela rápido e fundo até sentir a buceta apertar no limite. No último segundo você para completamente e segura o quadril dela.",
+        act: "Aurora solta um gemido revoltado e quase chora de frustração. Os quadris tentam se mexer sozinhos.",
         speech: [
-          "Você é cruel!! Me deixa no limite e ainda sorri?!\n\nVolta aqui agora, ou eu mesma vou resolver isso.",
-          "Eu juro que vou me vingar... mas primeiro volta aqui.\n\nEu preciso de você, agora."
+          "NÃO! Volta aqui, desgraçado!\n\nEu tava quase gozando... me fode logo!",
+          "Você é um filho da puta... eu tô tremendo.\n\nMe fode. Agora. Eu preciso gozar."
         ]
       },
       {
-        id: "in_cumplice", style: "cuidado", tone: "sweet",
-        label: "Entrelaçar as mãos nas dela e manter os olhos nos dela o tempo todo",
-        deltas: { affinity: 12, trust: 10, intimacyLevel: 14, heat: 12, arousal: 16, vulnerability: 8 },
-        beat: "Você entrelaça os dedos nos dela e mantém os olhos presos aos seus durante todo o momento, sussurrando o quanto ela é linda.",
-        act: "Os olhos dela se enchem de emoção e desejo ao mesmo tempo, e ela aperta suas mãos com força.",
+        id: "in_cnc_usar", style: "cnc", tone: "hot", requiresCnc: true,
+        label: "[CNC] Segurar os pulsos dela e foder sem pedir, ignorando o 'para'",
+        deltas: { heat: 22, arousal: 28, intimacyLevel: 12, dominance: 14, discomfort: 6, composure: -20 },
+        beat: "Você prende os pulsos dela acima da cabeça com uma mão e enfia o pau com força. Quando ela solta um 'para' abafado, você continua fodendo mais fundo, usando o corpo pequeno dela.",
+        act: "Aurora resiste de mentira, os olhos marejando de tesão. A buceta aperta ainda mais e escorre em você.",
         speech: [
-          "Você me olha desse jeito... e eu me sinto a pessoa mais importante do mundo.\n\nNão solta minha mão, por favor.",
-          "Com você eu não preciso fingir nada. É tão bom poder só sentir.\n\nFica comigo assim."
+          "P-para... ah, foda-se, continua!\n\nMe usa. Me fode como se eu fosse só um buraco gostoso.",
+          "Eu falei para e você não parou... porra, isso me deixa louca.\n\nContinua me usando. Eu gosto."
         ]
       },
       {
-        id: "in_checkin", style: "cuidado", tone: "sweet", checkin: true,
-        label: "Parar um instante e perguntar se ela quer continuar",
-        deltas: { trust: 10, affinity: 6, vulnerability: 8, discomfort: -8 },
-        beat: "Você para por um instante, encosta a testa na dela e pergunta com ternura: — Quer continuar assim? Podemos parar ou mudar o que você quiser.",
-        act: "Ela ri, emocionada, e te puxa para um beijo curto e doce antes de responder.",
+        id: "in_degradar", style: "degradante", tone: "hot", requiresCnc: true,
+        label: "[CNC] Foder ela enquanto chama de putinha e fala o quanto ela é fácil",
+        deltas: { heat: 20, arousal: 26, intimacyLevel: 11, dominance: 12, discomfort: 5, composure: -18 },
+        beat: "Você fode Aurora com força e fala no ouvido dela: — Olha só pra você... tão pequena, tão molhada, tão fácil de usar. Sua putinha.",
+        act: "Ela cora até o pescoço e a buceta aperta violentamente. Um gemido vergonhoso escapa.",
         speech: [
-          "Quero continuar. Quero muito. E gostei ainda mais de você ter perguntado.\n\nSe eu pedir pra parar, eu sei que você vai parar. Isso me deixa livre pra querer tudo.",
-          "Sim. Continua. Eu confio em você.\n\nSó o fato de você perguntar torna tudo melhor."
+          "Porra... me chama de putinha de novo.\n\nEu gosto. Eu sou sua putinha. Continua falando.",
+          "Você me trata como objeto e eu fico ainda mais molhada...\n\nSou fácil pra você. Usa."
         ]
       }
     ],
+
+    // ===================== STAGE 3: ENTREGA =====================
     3: [
       {
-        id: "cl_lento", style: "cuidado", tone: "sweet",
-        label: "Chegar ao ápice juntos, devagar, sussurrando o nome dela",
-        deltas: { heat: 14, arousal: -30, intimacyLevel: 18, affinity: 14, trust: 12, desire: -45 },
-        beat: "Você sussurra o nome dela, sustentando o ritmo lento e olhando nos olhos dela até os dois se perderem no mesmo instante.",
-        act: "Ela se agarra a você com um suspiro trêmulo, escondendo o rosto no seu pescoço enquanto o corpo todo relaxa devagar.",
+        id: "en_gozar_dentro", style: "ousado", tone: "hot",
+        label: "Foder até gozar dentro dela, bem fundo",
+        deltas: { heat: 22, arousal: 30, intimacyLevel: 16, composure: -22, affinity: 8 },
+        beat: "Você segura a cintura dela com força e fode rápido e fundo até gozar, despejando porra quente bem no fundo da buceta apertada.",
+        act: "Aurora geme alto e goza junto, a buceta pulsando e espremendo cada gota. O corpo pequeno treme inteiro.",
         speech: [
-          "Meu Deus, 402... eu nem consigo achar palavras pra descrever o que acabou de acontecer aqui. Sentir você olhando nos meus olhos desse jeito bem na hora em que eu perdi o chão foi absurdo.\n\nFica colado em mim assim mais um pouco, por favor. Não solta minha mão agora.",
-          "Foi perfeito... perfeito de verdade, do começo até o último suspiro. Eu nunca tinha me sentido tão inteira e tão segura ao mesmo tempo nos braços de alguém.\n\nMe abraça forte, porque meu corpo inteiro ainda tá tremendo encostado no seu."
+          "Dentro... goza dentro de mim!\n\nEu quero sentir sua porra escorrendo depois.",
+          "Porra... eu senti você gozar fundo.\n\nContinua me fodendo mesmo depois. Eu ainda tô gozando."
         ]
       },
       {
-        id: "cl_intenso", style: "ousado", tone: "hot",
-        label: "Intensificar até o limite e deixar a noite explodir",
-        deltas: { heat: 18, arousal: -35, intimacyLevel: 18, affinity: 10, desire: -55, personaBold: 3 },
-        beat: "Você leva o momento ao limite com firmeza e intensidade, até a tensão acumulada explodir num instante só, com os dois se agarrando um ao outro.",
-        act: "Aurora cobre a boca com a mão para abafar um grito de prazer, os olhos fechados e o corpo todo tremendo contra o seu.",
+        id: "en_gozar_cara", style: "bruto", tone: "hot",
+        label: "Tirar o pau e gozar na cara e na boca dela",
+        deltas: { heat: 20, arousal: 28, intimacyLevel: 14, dominance: 10, composure: -18 },
+        beat: "Você tira o pau, ajoelha na frente dela e goza na cara pequena, na boca aberta e nos seios. A porra escorre pelo queixo.",
+        act: "Aurora mantém a boca aberta e a língua pra fora, recebendo tudo. Os olhos brilham de tesão sujo.",
         speech: [
-          "Caramba... eu juro que vi estrelas, o teto e o quarto andar inteiro girar ao mesmo tempo! Você perdeu qualquer noção de limite hoje e eu não conseguiria reclamar nem se quisesse.\n\nVocê me desmontou inteira de um jeito maravilhoso — minhas mãos ainda nem pararam de tremer.",
-          "Que noite absurda... minhas pernas viraram completamente gelatina e meu coração tá batendo na minha garganta até agora!\n\nMe dá dois minutos abraçada em você pra eu lembrar de novo como é que se respira direito, 402."
+          "Isso... goza na minha cara.\n\nEu quero ficar toda suja de você.",
+          "Hmm... gostoso.\n\nMe deixa assim. Não limpa ainda."
         ]
       },
       {
-        id: "cl_ela_decide", style: "conduzida", tone: "ctrl",
-        label: "Deixar ela decidir o momento exato, acompanhando cada sinal",
-        deltas: { heat: 16, arousal: -32, intimacyLevel: 18, dominance: 6, affinity: 12, desire: -50 },
-        beat: "Você segue exatamente o ritmo dela, deixando que ela decida cada instante, até ela te puxar pela nuca com um olhar que diz que chegou a hora.",
-        act: "Aurora se entrega ao próprio ritmo com um suspiro profundo, apertando você contra si com força.",
+        id: "en_ela_goza_comando", style: "conduzida", tone: "ctrl",
+        label: "Deixar ela gozar sentada em você, no ritmo dela",
+        deltas: { heat: 20, arousal: 28, intimacyLevel: 16, dominance: 12, composure: -16 },
+        beat: "Aurora cava o pau com força e goza sentada em você, a buceta apertando e escorrendo. Ela segura seu rosto e olha nos seus olhos enquanto goza.",
+        act: "O corpo pequeno treme violentamente. Ela geme seu nome e continua se mexendo devagar, aproveitando cada onda.",
         speech: [
-          "Eu sonhei exatamente com isso... sentir cada segundo no meu compasso, com você totalmente entregue aos meus sinais e me acompanhando sem desviar o olhar.\n\nObrigada por confiar o ritmo inteiro nas minhas mãos — nunca me senti tão desejada assim.",
-          "Foi exatamente do jeito que eu queria, sem tirar nem pôr uma única respiração... Ver você respondendo a cada gesto meu me deixou completamente rendida no final.\n\nNão sai daqui de perto não, tá? Fica comigo mais um bom tempo."
+          "Eu tô gozando... porra, eu tô gozando no seu pau.\n\nNão tira. Deixa eu terminar.",
+          "Olha pra mim... eu quero que você veja minha cara quando eu gozo."
+        ]
+      },
+      {
+        id: "en_cnc_forcar_gozo", style: "cnc", tone: "hot", requiresCnc: true,
+        label: "[CNC] Forçar ela a gozar mesmo quando ela pede pra parar",
+        deltas: { heat: 24, arousal: 32, intimacyLevel: 13, dominance: 16, discomfort: 8, composure: -24 },
+        beat: "Quando Aurora começa a dizer 'espera, tá demais', você segura a cintura dela e fode ainda mais forte, forçando o orgasmo. A buceta dela explode em espasmos.",
+        act: "Ela chora de prazer e goza violentamente, o corpo pequeno se contorcendo. Depois fica mole e ofegante.",
+        speech: [
+          "N-não... espera... AH!\n\nPorra... você me forçou a gozar... eu amei.",
+          "Eu pedi pra parar e você me fez gozar mesmo assim...\n\nDesgraçado. Faz de novo."
+        ]
+      },
+      {
+        id: "en_duplo_gozo", style: "bruto", tone: "hot",
+        label: "Foder sem parar até os dois gozarem juntos, sujos e ofegantes",
+        deltas: { heat: 24, arousal: 30, intimacyLevel: 17, affinity: 10, composure: -20 },
+        beat: "Você fode Aurora sem nenhuma pausa, o barulho molhado e os gemidos misturados. Vocês gozam quase juntos, o pau pulsando dentro da buceta que aperta sem parar.",
+        act: "Os dois ficam tremendo, suados, a porra misturada com o tesão dela escorrendo entre as pernas.",
+        speech: [
+          "Eu gozei... porra, eu gozei com você dentro.\n\nNão tira ainda. Fica.",
+          "A gente tá uma bagunça...\n\nE eu adoro."
         ]
       }
     ],
+
+    // ===================== STAGE 4: DEPOIS (AFTERCARE) =====================
     4: [
       {
-        id: "af_abraco", style: "cuidado", tone: "sweet",
-        label: "Abraçar ela apertado e ficar em silêncio, ouvindo a respiração",
-        deltas: { affinity: 14, trust: 14, vulnerability: 12, calm: 12, intimacyLevel: 8, discomfort: -10 },
-        beat: "Você a puxa para o seu peito, cobre os dois com o lençol e fica quieto, sentindo a respiração dela desacelerar contra a sua pele.",
-        act: "Ela aninha a cabeça no seu ombro e desenha círculos preguiçosos no seu peito com a ponta do dedo.",
+        id: "af_carinho_limpo", style: "cuidado", tone: "sweet",
+        label: "Limpar ela com carinho, beijar a testa e abraçar",
+        deltas: { trust: 14, affinity: 12, vulnerability: 10, intimacyLevel: 8, discomfort: -12 },
+        beat: "Você pega uma toalha úmida, limpa a porra e o tesão das coxas dela com cuidado, beija a testa e a puxa pro seu peito.",
+        act: "Aurora se aninha no seu peito, pequena e satisfeita, os olhos fechados. Um sorriso preguiçoso aparece.",
         speech: [
-          "Eu adoro esse silêncio gostoso que fica com você depois... não tem pressa nenhuma de levantar, nem necessidade de preencher o ar com conversa fiada.\n\nSó ficar aqui ouvindo o seu coração voltar pro compasso calmo embaixo do meu ouvido já faz a noite inteira valer ouro.",
-          "Fica mais um tempinho aqui comigo embaixo desse lençol... eu juro que não quero levantar nunca mais hoje.\n\nObrigada por cuidar de mim com tanto carinho depois também — é isso que faz você ser insubstituível."
+          "Você é tão cuidadoso depois...\n\nEu gosto disso. Fica abraçado em mim.",
+          "Obrigada por limpar e por não sair correndo.\n\nFica mais um pouco."
         ]
       },
       {
-        id: "af_conversa", style: "cuidado", tone: "sweet",
-        label: "Conversar baixinho sobre o que ela mais gostou",
-        deltas: { affinity: 12, trust: 14, vulnerability: 14, intimacyLevel: 10, charisma: 1 },
-        beat: "Você pergunta baixinho, de brincadeira, o que ela mais gostou — e o que quer repetir ou fazer diferente da próxima vez.",
-        act: "Ela fica vermelha, esconde o rosto no travesseiro e depois confessa tudo rindo, sem filtro.",
+        id: "af_sujos_juntos", style: "ousado", tone: "hot",
+        label: "Ficar deitado com ela ainda sujos, o pau mole na coxa dela",
+        deltas: { heat: 8, arousal: 6, intimacyLevel: 10, affinity: 8, composure: -6 },
+        beat: "Você não limpa nada. Fica deitado com Aurora, a porra escorrendo entre as pernas dela e o pau mole descansando na coxa pequena.",
+        act: "Ela ri baixinho e esfrega a bunda suja em você de propósito.",
         speech: [
-          "Você faz cada pergunta direta logo depois de me deixar sem fôlego!! Tá bom, eu conto... mas só porque eu confio completamente em você.\n\nA verdade é que eu amei cada segundo — especialmente quando você leu meu ritmo sem eu precisar explicar. E pra próxima noite eu já tenho umas ideias ainda melhores guardadas aqui.",
-          "Eu amo que a gente consiga sair de uma noite tão intensa e conversar sobre tudo rindo sem vergonha nenhuma.\n\nSe tiver qualquer detalhe que você gostou mais ou queira experimentar comigo na próxima, me conta sem filtro também, combinado?"
+          "A gente tá nojento...\n\nE eu tô adorando. Não limpa ainda.",
+          "Sua porra escorrendo de mim...\n\nDeixa. Eu quero sentir."
         ]
       },
       {
-        id: "af_brincar", style: "provocacao", tone: "hot",
-        label: "Provocar de leve, rindo, enquanto vocês recuperam o fôlego",
-        deltas: { affinity: 12, heat: 8, rivalry: 6, intimacyLevel: 8, trust: 8 },
-        beat: "Você sorri de canto e solta uma provocação baixinha sobre o quanto ela se rendeu rápido, desafiando-a a repetir.",
-        act: "Aurora joga o travesseiro na sua cara, rindo e corada, mas sem se afastar um centímetro.",
+        id: "af_cnc_continua", style: "cnc", tone: "hot", requiresCnc: true,
+        label: "[CNC] Continuar tocando nela mesmo depois dela pedir descanso",
+        deltas: { heat: 14, arousal: 16, dominance: 10, discomfort: 6, intimacyLevel: 6 },
+        beat: "Mesmo depois do orgasmo, você continua passando o dedo na buceta sensível dela. Quando ela pede pra parar, você ignora e continua brincando com o clitóris inchado.",
+        act: "Aurora treme e geme, misturando protesto e prazer. A buceta ainda lateja.",
         speech: [
-          "Convencido demais!! Quem foi que ficou sem voz no meio da cena, hein?! Eu não lembro de ter me rendido tão rápido assim não!\n\n...Tá bom, talvez eu tenha derretido um pouquinho — mas só porque você caprichou muito além da conta hoje, 402.",
-          "Rindo de mim bem agora que minhas pernas nem respondem direito?! Pois anota aí que na próxima rodada eu vou me vingar com juros e correção!\n\nAgora para de rir e vem logo me abraçar aqui perto, seu abusado."
+          "Para... tá sensível demais... ah, foda-se.\n\nContinua. Eu gosto quando você não escuta.",
+          "Você é um desgraçado...\n\nMas não para. Me toca mais."
+        ]
+      },
+      {
+        id: "af_conversa_safada", style: "provocacao", tone: "hot",
+        label: "Perguntar baixinho qual foi a parte que ela mais gozou",
+        deltas: { affinity: 10, trust: 8, intimacyLevel: 9, heat: 8 },
+        beat: "Você beija o ombro dela e pergunta baixo, ainda ofegante: — Qual parte te fez gozar mais? Me conta.",
+        act: "Aurora cora e esconde o rosto no seu peito por um segundo antes de responder.",
+        speech: [
+          "Quando você me chamou de putinha e fodeu mais forte...\n\nAquilo me quebrou. Eu gozei só de ouvir.",
+          "Quando você me ergueu e me usou como se eu não pesasse nada.\n\nEu adoro ser pequena pra você."
+        ]
+      },
+      {
+        id: "af_dormir_colado", style: "cuidado", tone: "sweet",
+        label: "Puxar ela pro seu peito e dormir colado, ainda pelados",
+        deltas: { trust: 12, affinity: 14, vulnerability: 12, intimacyLevel: 10, discomfort: -10 },
+        beat: "Você puxa o corpo pequeno dela pro seu peito, cobre os dois com o lençol e beija o topo da cabeça dela.",
+        act: "Aurora se encolhe contra você, a cabeça encaixada no seu peito, e solta um suspiro longo e feliz.",
+        speech: [
+          "Eu poderia dormir assim todas as noites...\n\nVocê é quente e cheira a sexo. Eu gosto.",
+          "Não solta.\n\nEu quero acordar ainda colada em você."
         ]
       }
     ]
   };
 
   // ------------------------------------------------------------------------
-  // API
+  // Funções principais
   // ------------------------------------------------------------------------
-  I.start = function () {
-    const s = AG.state;
-    const a = s.aurora;
+  I.startScene = function () {
     if (!I.canStart()) return false;
-    AG.playSound("hot");
-    AG.advanceTime(10, { suppressRandom: true, keepSpecialScene: true });
-    s.activeConversationNode = null;
-    s.activeDeepScene = null;
-    s.activeIntimateScene = { stage: 0, checked: false, paused: 0, styles: [], steps: 0 };
-    s.aurora.activeSpecialSceneKey = a.wearingUniform ? "nsfwUniforme" : "noite404";
-
-    const f = fam();
-    const flavor = pick("intim_flavor_" + f, FAM_FLAVOR[f] || FAM_FLAVOR.luminosa);
-
-    let openerBeat = "A porta está trancada, o celular no silencioso, e a luz baixa deixa o quarto com cara de refúgio. Você se aproxima devagar, esperando ela marcar o ritmo do primeiro passo.";
-    let openerSpeech = "Eu pensei nisso o dia inteiro, sabia?\n\nMas tem uma regra: se eu falar 'pausa', a gente para na hora e vira só abraço. Combinado? ...Agora vem aqui.";
-
-    if (a.wearingUniform) {
-      openerBeat = "Você tranca a porta atrás de vocês enquanto ela ainda está com o uniforme ajustado do Café Sakura e o laço do avental frouxo na cintura. Só a luz baixa ilumina o rubor subindo pelo pescoço dela.";
-      openerSpeech = "Você não tirou os olhos desse uniforme o dia inteiro — então eu não tirei ele antes de entrar aqui.\n\nCombinado de sempre: qualquer 'pausa' vira abraço na hora. Agora me mostra o que você tava segurando até aqui.";
-    } else if (s.weather === "chuva_noturna") {
-      openerBeat = "A chuva bate constante contra o vidro enquanto a luminária baixa aquece o quarto inteiro. Você puxa a cortina e chega perto dela, o calor da pele dela contrastando com o frio lá de fora.";
-      openerSpeech = "Chuva forte lá fora, luz baixa aqui dentro e a porta trancada... não existe desculpa melhor pra gente esquecer do mundo.\n\nSe eu pedir pausa a gente desacelera na hora, combinado? Vem cá pra perto de mim.";
-    } else if (s.currentLocation === "ape_404") {
-      openerBeat = "No cantinho particular dela no 404, o monitor já apagou e só o abajur quente ao lado da cama fica aceso. O perfume de baunilha e pele quente enche o espaço quando ela dá um passo pra você.";
-      openerSpeech = "Aqui no meu 404 ninguém atrapalha — e eu tô morrendo de vontade de ter você sem pressa hoje.\n\nRegra nossa: se eu falar pausa a gente só fica abraçado. Fechado? Então chega mais perto, 402.";
-    } else {
-      openerBeat = "No seu Apê 402, a porta fecha com um estalo baixo e o silêncio do corredor some. Ela apoia as mãos no seu peito olhando de baixo pra cima, com a respiração curta e um sorriso sem filtro.";
-      openerSpeech = "Eu atravessei o corredor pensando só nesse momento, sabia?\n\nSe eu pedir pausa a gente para e fica só no abraço, combinado? ...Agora não me faz esperar mais.";
-    }
-
+    const s = AG.state;
     const it = st();
-    if (it.sessions >= 1) {
-      openerSpeech += "\n\n" + pick("intim_repeat_open", REPEAT_SESSION_OPENERS);
-    } else {
-      const firstNightTone = intense()
-        ? "Ela segura a ponta da sua camisa puxando você um centímetro mais perto, os olhos brilhando sob a meia-luz sem nenhum sinal de recuo."
-        : "Ela entrelaça os dedos nos seus com um sorriso corado e calmo, confiando totalmente no ritmo que vocês vão criar juntos.";
-      openerSpeech += "\n\n" + firstNightTone;
+    s.activeIntimateScene = {
+      stage: 0,
+      steps: 0,
+      styles: [],
+      checked: false,
+      startedAt: Date.now()
+    };
+
+    const openerBeat = pick("intim_opener_beat", [
+      "Você trava a porta do quarto e olha pra Aurora. O ar já está carregado de tesão.",
+      "A distância entre vocês desaparece. O corpo pequeno dela já está quente e disponível."
+    ]);
+    const flavor = pick("intim_opener_flavor", FAM_FLAVOR[fam()] || FAM_FLAVOR.quimica);
+    let openerSpeech = pick("intim_opener_speech", [
+      "Você trancou a porta...\n\nEntão me usa. Eu tô pronta.",
+      "Chega de brincadeira.\n\nMe fode."
+    ]);
+
+    if (it.sessions > 0) {
+      openerSpeech = pick("intim_repeat_opener", [
+        "A gente já se conhece...\n\nEntão não precisa ser gentil. Me fode do jeito que você sabe que eu gosto.",
+        "De novo...\n\nEu já tô molhada só de lembrar da última vez."
+      ]);
     }
 
     AG.clearFeed();
@@ -549,16 +542,24 @@ window.AuroraGame = window.AuroraGame || {};
     const sc = AG.state.activeIntimateScene;
     if (!sc) return [];
     const disc = st().discovered || {};
-    let list = (CHOICES[sc.stage] || []).filter((c) => !(c.checkin && sc.checked));
+    const cncOk = isCncUnlocked();
+
+    let list = (CHOICES[sc.stage] || []).filter((c) => {
+      if (c.checkin && sc.checked) return false;
+      if (c.requiresCnc && !cncOk) return false;
+      return true;
+    });
+
     list = list.map((c) => ({
       id: c.id,
       tone: c.tone,
       label: c.label,
-      hint: (disc[c.style] && !c.checkin ? "♥ favorita dela · " : "") + STYLE_LABEL[c.style]
+      hint: (disc[c.style] && !c.checkin ? "♥ favorita · " : "") + (STYLE_LABEL[c.style] || c.style)
     }));
+
     if (sc.stage < 4) {
       list.push({ id: "int_slow_down", tone: "sweet", label: "Desacelerar e só abraçar por um momento", hint: "reduz o ritmo sem encerrar" });
-      list.push({ id: "int_stop", tone: "sweet", label: "Parar aqui e abraçar ela", hint: "encerrar com carinho" });
+      list.push({ id: "int_stop", tone: "sweet", label: "Parar aqui e abraçar ela (safeword real)", hint: "encerrar de verdade" });
     }
     return list;
   };
@@ -567,9 +568,11 @@ window.AuroraGame = window.AuroraGame || {};
     const s = AG.state;
     const it = st();
     it.sessions += 1;
-    it.log.unshift({ day: s.day, time: AG.getFormattedClock(), reason });
-    if (it.log.length > 12) it.log = it.log.slice(0, 12);
+    if (reason === "cnc" || reason === "degradante" || reason === "bruto") it.cncSessions = (it.cncSessions || 0) + 1;
+    it.log.unshift({ day: s.day, time: AG.getFormattedClock ? AG.getFormattedClock() : "", reason });
+    if (it.log.length > 16) it.log = it.log.slice(0, 16);
     s.activeIntimateScene = null;
+    s.flags = s.flags || {};
     s.flags.completedIntimateToday = s.day;
   }
 
@@ -578,110 +581,111 @@ window.AuroraGame = window.AuroraGame || {};
     const a = s.aurora;
     const sc = s.activeIntimateScene;
     if (!sc) return;
-    if (!AG.isAuroraHere() || a.activity === "dormindo") { s.activeIntimateScene = null; return; }
+    if (!AG.isAuroraHere() || a.activity === "dormindo") {
+      s.activeIntimateScene = null;
+      return;
+    }
     const it = st();
 
+    // STOP real
     if (choiceId === "int_stop") {
-      AG.playSound("heart");
+      AG.playSound && AG.playSound("heart");
       it.stops += 1;
-      const pills = AG.applyDeltas({ trust: 14, affinity: 10, vulnerability: 10, discomfort: -10, intimacyLevel: 4, mood: "dengosa", specialScene: "chamego" });
-      AG.addMemory("parou_com_carinho_" + s.day, "Parou no meio de um momento íntimo quando ela quis desacelerar — e ela sentiu o quanto era respeitada.", "bom", true);
+      const pills = AG.applyDeltas({ trust: 16, affinity: 12, vulnerability: 12, discomfort: -14, intimacyLevel: 5, mood: "dengosa" });
+      AG.addMemory && AG.addMemory("parou_com_carinho_" + s.day, "Parou de verdade quando ela pediu — ela sentiu o respeito.", "bom", true);
       AG.clearFeed();
       AG.pushFeed({
         type: "aurora",
-        playerBeat: "Você respira fundo, afasta o rosto e abraça ela com firmeza, sem nenhuma pressa nem cobrança.",
-        action: "Ela solta o ar aliviada e sorri com os olhos marejados, aninhando-se no seu peito.",
-        speech: "Obrigada por parar sem fazer cara feia. Isso significa mais do que você imagina.\n\nTô com vontade de ficar só assim, abraçada. Pode ser?",
+        playerBeat: "Você para imediatamente, afasta o corpo e a abraça com firmeza, sem nenhuma cobrança.",
+        action: "Aurora solta o ar aliviada e se aninha no seu peito, os olhos marejados de gratidão.",
+        speech: "Obrigada por parar de verdade...\n\nIsso significa muito pra mim.",
         pills
       });
-      finishSession("pausa");
-      AG.advanceTime(10, { suppressRandom: true, keepSpecialScene: true });
+      finishSession("parou");
       AG.saveGame("autosave");
       return;
     }
 
+    // Slow down
     if (choiceId === "int_slow_down") {
-      AG.playSound("heart");
-      const pills = AG.applyDeltas({ trust: 8, vulnerability: 6, discomfort: -6, calm: 6 });
+      AG.playSound && AG.playSound("heart");
+      const pills = AG.applyDeltas({ trust: 6, affinity: 5, discomfort: -6, composure: 4 });
       AG.clearFeed();
       AG.pushFeed({
         type: "aurora",
-        playerBeat: "Você desacelera, encosta a testa na dela e só respira junto, deixando o calor baixar sem encerrar nada.",
-        action: "Ela fecha os olhos e sorri, respirando fundo, relaxando os ombros.",
-        speech: "Gostei disso. Um minuto só pra respirar...\n\nQuando eu quiser, eu te falo. Mas é bom saber que posso.",
+        playerBeat: "Você reduz o ritmo, a abraça e só fica sentindo o corpo pequeno dela contra o seu por um momento.",
+        action: "Ela respira fundo e relaxa nos seus braços, ainda quente mas mais calma.",
+        speech: "Obrigada... eu precisava disso um segundo.\n\nPode continuar quando quiser.",
         pills
       });
-      sc.paused = 0;
-      AG.advanceTime(5, { suppressRandom: true, keepSpecialScene: true });
+      AG.advanceTime && AG.advanceTime(5, { suppressRandom: true, keepSpecialScene: true });
       AG.saveGame("autosave");
       return;
     }
 
-    const ch = (CHOICES[sc.stage] || []).find((c) => c.id === choiceId);
+    // Encontrar a escolha
+    const allChoices = CHOICES[sc.stage] || [];
+    const ch = allChoices.find((c) => c.id === choiceId);
     if (!ch) return;
 
-    // Aurora pode pedir pra desacelerar quando está vulnerável e você vai ousado sem check-in
-    const vulnerable = fam() === "vulneravel" || (a.mentalStability !== undefined && a.mentalStability <= 55);
-    if (ch.style === "ousado" && vulnerable && !sc.checked && sc.stage >= 1) {
-      AG.playSound("heart");
-      const pills = AG.applyDeltas({ trust: 4, vulnerability: 4 });
-      sc.paused += 1;
-      AG.clearFeed();
-      AG.pushFeed({
-        type: "aurora",
-        playerBeat: "Você parte pra uma pegada mais firme, mas percebe os ombros dela enrijecerem de leve.",
-        action: "Aurora segura o seu pulso com delicadeza e balança a cabeça com um sorriso nervoso, sem se afastar.",
-        speech: "Ei... mais devagar, tá? Hoje minha cabeça tá meio pesada e eu quero sentir cada coisa direito.\n\nNão é um 'não' pra você — é um 'com calma'. Que tal perguntar como eu tô antes?",
-        subtext: "Dica sua: perguntar se ela está confortável (check-in) muda o clima e libera mais entrega.",
-        pills
-      });
-      AG.saveGame("autosave");
-      return;
+    // Unlock CNC se for o check-in específico
+    if (ch.unlocksCnc) {
+      it.cncAuthorized = true;
+      it.checkins += 1;
+      sc.checked = true;
+    }
+    if (ch.checkin) {
+      it.checkins += 1;
+      sc.checked = true;
     }
 
-    // Estilo combinando com a preferência dela = reação intensificada + descoberta
-    const pref = I.getHerPreference();
-    const match = ch.style === pref && !ch.checkin;
-    let deltas = Object.assign({}, ch.deltas);
-    if (match) {
-      Object.keys(deltas).forEach((k) => {
-        if (typeof deltas[k] === "number" && deltas[k] > 0 && !["mood", "specialScene"].includes(k)) {
-          deltas[k] = Math.round(deltas[k] * 1.25);
-        }
-      });
-      it.discovered[ch.style] = true;
+    const match = ch.style && I.getHerPreference() === ch.style;
+    if (match && ch.style) it.discovered[ch.style] = true;
+
+    let deltas = Object.assign({}, ch.deltas || {});
+    // Mood shift baseado na escolha
+    if (ch.style === "cnc" || ch.style === "degradante" || ch.style === "bruto") {
+      deltas.mood = sc.stage >= 3 ? "entregue" : "excitada_tensa";
+      if (deltas.discomfort && deltas.discomfort > 0 && a.discomfort + deltas.discomfort > 45) {
+        // Ainda assim o jogo continua, mas ela pode ficar mais sombria depois
+        deltas.mood = "corrompida_fria";
+      }
+    } else if (sc.stage >= 3) {
+      deltas.mood = "entregue";
+    } else if (sc.stage >= 1) {
+      deltas.mood = "excitada_tensa";
+    } else {
+      deltas.mood = "corada_sensivel";
     }
-    if (ch.checkin) { sc.checked = true; it.checkins += 1; }
 
-    const specialKey = a.wearingUniform
-      ? "nsfwUniforme"
-      : ch.style === "conduzida" ? "nsfwControle"
-      : sc.stage >= 2 ? (s.currentLocation === "ape_404" ? "nsfw2" : "nsfw1")
-      : "noite404";
-    deltas.specialScene = specialKey;
-    deltas.mood = sc.stage >= 3 ? "entregue" : sc.stage >= 1 ? "excitada_tensa" : "corada_sensivel";
-
-    AG.playSound(ch.tone === "hot" ? "hot" : "heart");
+    AG.playSound && AG.playSound(ch.tone === "hot" ? "hot" : "heart");
     const pills = AG.applyDeltas(deltas);
     if (ch.style && !ch.checkin) sc.styles.push(ch.style);
 
     const f = fam();
     const speechMain = pick("intim_sp_" + ch.id, ch.speech);
     let speech = speechMain;
-    if (match) {
-      const favLine = pick("intim_fav_" + ch.style, FAVORITE_MATCH_LINES[ch.style] || FAVORITE_MATCH_LINES.cuidado);
+
+    if (match && !ch.checkin) {
+      const favLines = {
+        lento: ["Você fode exatamente no ritmo que me deixa louca...", "Esse jeito devagar me quebra inteira."],
+        ousado: ["Porra, quando você me pega assim eu desisto de qualquer resistência.", "Essa pegada firme me deixa completamente sua."],
+        conduzida: ["Eu adoro ter o controle e ver você se entregar.", "Continua me obedecendo assim."],
+        provocacao: ["Você sabe exatamente como me torturar...", "Eu odeio e amo quando você me deixa no limite."],
+        cuidado: ["Esse cuidado misturado com tesão me derrete.", "Ninguém me trata assim."],
+        cnc: ["Você me usa de verdade e eu gozo com isso...", "Continua não escutando quando eu falo para."],
+        degradante: ["Me chama de putinha de novo...", "Eu gosto de ser tratada assim por você."],
+        bruto: ["Fode mais forte...", "Eu aguento. Me usa."]
+      };
+      const favLine = pick("intim_fav_" + ch.style, favLines[ch.style] || favLines.cuidado);
       speech += "\n\n" + favLine;
-    } else if (!ch.checkin) {
-      const stagePool = STAGE_DEPTH_PARAGRAPHS[sc.stage] || STAGE_DEPTH_PARAGRAPHS[1];
-      const toneArr = intense() ? stagePool.intenso : stagePool.suave;
-      const depthLine = pick("intim_depth_" + sc.stage + "_" + (intense() ? "int" : "sua"), toneArr);
-      if (depthLine) speech += "\n\n" + depthLine;
+    } else if (!ch.checkin && intense()) {
+      const extra = pick("intim_extra_" + ch.style, EXTRA_INTENSE[ch.style] || EXTRA_INTENSE.cuidado);
+      if (extra) speech += "\n\n" + extra;
     }
-    const flavor = pick("intim_flavor_" + f, FAM_FLAVOR[f] || FAM_FLAVOR.luminosa);
-    let action = ch.act + " " + flavor;
-    if (intense() && !ch.checkin && sc.stage >= 1) {
-      action += " " + pick("intim_extra_" + ch.style, EXTRA_INTENSE[ch.style] || EXTRA_INTENSE.cuidado);
-    }
+
+    const flavor = pick("intim_flavor_" + f, FAM_FLAVOR[f] || FAM_FLAVOR.quimica);
+    let action = (ch.act || "") + " " + flavor;
 
     AG.clearFeed();
     AG.pushFeed({
@@ -689,27 +693,27 @@ window.AuroraGame = window.AuroraGame || {};
       playerBeat: ch.beat,
       action,
       speech,
-      subtext: match ? "Leitura sua: a reação dela foi mais forte que nas outras — você acertou o jeito que ela gosta." : undefined,
+      subtext: match ? "Leitura sua: a reação dela foi bem mais forte — você acertou o jeito que ela gosta." : undefined,
       pills
     });
 
     if (ch.checkin) {
-      AG.advanceTime(5, { suppressRandom: true, keepSpecialScene: true });
+      AG.advanceTime && AG.advanceTime(5, { suppressRandom: true, keepSpecialScene: true });
       AG.saveGame("autosave");
       return;
     }
 
     sc.steps += 1;
-    AG.advanceTime(10, { suppressRandom: true, keepSpecialScene: true });
+    AG.advanceTime && AG.advanceTime(10, { suppressRandom: true, keepSpecialScene: true });
 
     if (sc.stage >= 4) {
       const dominant = sc.styles.length
         ? sc.styles.slice().sort((x, y) => sc.styles.filter((v) => v === y).length - sc.styles.filter((v) => v === x).length)[0]
         : "cuidado";
-      AG.addMemory(
+      AG.addMemory && AG.addMemory(
         "noite_intima_" + s.day,
-        `Uma noite íntima e consensual, marcada por ${STYLE_LABEL[dominant]} — e terminada com carinho.`,
-        "quente",
+        `Uma noite íntima marcada por ${STYLE_LABEL[dominant] || dominant}.`,
+        dominant === "cnc" || dominant === "degradante" || dominant === "bruto" ? "quente" : "quente",
         true
       );
       finishSession(dominant);
@@ -721,11 +725,13 @@ window.AuroraGame = window.AuroraGame || {};
 
   I.getSummaryHtmlData = function () {
     const it = st();
-    const disc = Object.keys(it.discovered).map((k) => STYLE_LABEL[k]);
+    const disc = Object.keys(it.discovered || {}).map((k) => STYLE_LABEL[k] || k);
     return {
       sessions: it.sessions,
       checkins: it.checkins,
       stops: it.stops,
+      cncAuthorized: !!it.cncAuthorized,
+      cncSessions: it.cncSessions || 0,
       discovered: disc,
       log: it.log
     };
