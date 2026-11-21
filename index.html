@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Favorite Woman Is Small</title>
+  <link rel="icon" type="image/png" href="midias/logos/laco_icone_oficial.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,500&family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/aurora-cute.css" />
+</head>
+<body>
+  <!-- Fundo Vivo Cinematográfico em 5 Camadas (Degradê + Aurora Silk + Orbs + Ícones Parallax + Partículas) -->
+  <div class="living-bg-gradient" aria-hidden="true"></div>
+  <div class="living-bg-orbs" aria-hidden="true">
+    <div class="bg-silk-ribbon ribbon-a"></div>
+    <div class="bg-silk-ribbon ribbon-b"></div>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+    <div class="bg-orb orb-4"></div>
+  </div>
+  <div class="living-bg-pattern" aria-hidden="true"></div>
+  <div class="living-bg-pattern-fg" aria-hidden="true"></div>
+  <div class="living-bg-particles" aria-hidden="true">
+    <span class="bg-floater f-petal" style="left:4%; --sz:14px; --dur:15s; --del:-2s; --sway:38px;"></span>
+    <span class="bg-floater f-heart" style="left:10%; --sz:15px; --dur:18s; --del:-7s; --sway:-28px;">♥</span>
+    <span class="bg-floater f-bokeh" style="left:16%; --sz:24px; --dur:16s; --del:-11s; --sway:32px;"></span>
+    <span class="bg-floater f-spark" style="left:22%; --sz:13px; --dur:13s; --del:-4s; --sway:-24px;">✦</span>
+    <span class="bg-floater f-petal" style="left:31%; --sz:12px; --dur:19s; --del:-13s; --sway:40px;"></span>
+    <span class="bg-floater f-bokeh" style="left:42%; --sz:20px; --dur:21s; --del:-9s; --sway:-30px;"></span>
+    <span class="bg-floater f-heart" style="left:55%; --sz:14px; --dur:17s; --del:-3s; --sway:26px;">♥</span>
+    <span class="bg-floater f-petal" style="left:67%; --sz:15px; --dur:16s; --del:-12s; --sway:-36px;"></span>
+    <span class="bg-floater f-spark" style="left:76%; --sz:14px; --dur:14s; --del:-6s; --sway:22px;">✦</span>
+    <span class="bg-floater f-bokeh" style="left:83%; --sz:26px; --dur:17s; --del:-15s; --sway:-34px;"></span>
+    <span class="bg-floater f-heart" style="left:88%; --sz:16px; --dur:15s; --del:-1s; --sway:30px;">♥</span>
+    <span class="bg-floater f-petal" style="left:93%; --sz:14px; --dur:14s; --del:-8s; --sway:-32px;"></span>
+    <span class="bg-floater f-spark" style="left:7%; --sz:11px; --dur:12s; --del:-10s; --sway:20px;">✦</span>
+    <span class="bg-floater f-bokeh" style="left:96%; --sz:22px; --dur:19s; --del:-5s; --sway:-26px;"></span>
+  </div>
+  <div class="living-bg-vignette" aria-hidden="true"></div>
+  <div class="paper-grain-layer" aria-hidden="true"></div>
+
+  <!-- Container Principal do Jogo -->
+  <div id="app-root"></div>
+
+  <!-- Módulos Editáveis do Jogo -->
+  <script src="engine/state.js"></script>
+  <script src="engine/audioEngine.js"></script>
+  <script src="engine/emotionEngine.js"></script>
+  <script src="data/prologueAndStory.js"></script>
+  <script src="data/infiniteConversationEngine.js"></script>
+  <script src="data/deepDialogueAndUnlocks.js"></script>
+  <script src="data/locationsAndEvents.js"></script>
+  <script src="data/phoneAndEndings.js"></script>
+  <script src="data/intimacyEngine.js"></script>
+  <script src="engine/cursorFx.js"></script>
+  <script src="ui/app.js"></script>
+</body>
+</html>

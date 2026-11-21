@@ -1,0 +1,20 @@
+# OS & Explorer junk
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+desktop.ini
+.DS_Store
+._*
+
+# Editor / IDE local settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary & debug files
+*.tmp
+*.bak
+*.log
+npm-debug.log*
